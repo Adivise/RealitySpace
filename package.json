@@ -1,0 +1,33 @@
+{
+  "name": "nanospace",
+  "version": "1.0.0b",
+  "description": "✈ Join Discord: https://discord.gg/4pk97A2 👌",
+  "main": "index.js",
+  "dependencies": {
+    "common-tags": "^1.8.0",
+    "discord.js": "^14.6.0",
+    "erela.js": "github:Adivise/better-erela.js",
+    "lyrics-finder": "^21.7.0",
+    "moment": "^2.29.4",
+    "moment-duration-format": "^2.3.2",
+    "os": "^0.1.2",
+    "pretty-bytes": "^5.6.0",
+    "st.db": "^5.1.4"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Adivise",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Adivise/NanoSpace.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Adivise/NanoSpace/issues"
+  },
+  "homepage": "https://github.com/Adivise/NanoSpace#readme",
+  "devDependencies": {
+    "node": "^17.0.1"
+  }
+}
