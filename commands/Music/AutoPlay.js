@@ -18,7 +18,6 @@ module.exports = {
         const autoplay = player.get("autoplay");
         
         if (autoplay === true) {
-
             await player.set("autoplay", false);
             await player.queue.clear();
 
@@ -36,7 +35,11 @@ module.exports = {
             await player.set("autoplay", true);
             await player.set("requester", message.author);
             await player.set("identifier", identifier);
-            await player.queue.add(res.tracks[1]);
+            try {
+                await player.queue.add(res.tracks[1]);
+            } catch (e) {
+                return msg.edit(`No more songs found! | AutoPlay Support Only Youtube`);
+            }
 
             const on = new EmbedBuilder()
             .setDescription("`📻` | *Autoplay has been:* `Activated`")
