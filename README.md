@@ -11,9 +11,9 @@
 </p>
 
 ## 📑 Feature
-- [x] Music System
+- [x] Music Systems
 - [x] Custom Filters
-- [x] Multi Instnaces Support
+- [x] **Multi Instances Support**
 - [x] Easy to use
 
 ## 🎶 Support Source
