@@ -1,5 +1,5 @@
 {
-  "name": "nanospace",
+  "name": "realityspace",
   "version": "1.0.0b",
   "description": "✈ Join Discord: https://discord.gg/4pk97A2 👌",
   "main": "index.js",
@@ -21,12 +21,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Adivise/NanoSpace.git"
+    "url": "git+https://github.com/Adivise/RealitySpace.git"
   },
   "bugs": {
-    "url": "https://github.com/Adivise/NanoSpace/issues"
+    "url": "https://github.com/Adivise/RealitySpace/issues"
   },
-  "homepage": "https://github.com/Adivise/NanoSpace#readme",
+  "homepage": "https://github.com/Adivise/RealitySpace#readme",
   "devDependencies": {
     "node": "^17.0.1"
   }
