@@ -1,7 +1,7 @@
-## 📑 Short Feature
+## 📑 Feature
 - [x] Music System
 - [x] Custom Filters
-- [x] Multi Bot Support
+- [x] Multi Instnaces Support
 - [x] Easy to use
 
 ## 🎶 Support Source
@@ -15,11 +15,6 @@
 - [x] Bandcamp
 - [x] Vimeo
 - [x] Https (Radio)
-
-## 🚨 Have a Problem
-
-✈ Join Discord:  [NanoSpace ♪♪](https://discord.gg/SNG3dh3MbR)
-   mention me in chat #general or #javascript and ask problem okay! 👌
 
 <details><summary>📎 Requirements [CLICK ME]</summary>
 <p>
@@ -50,23 +45,51 @@ npm install
 
 ## 📄 Configuration
 
-Copy or Rename `.env.example` to `.env` and fill out the values:
+Copy or Rename `config.js.example` to `config.js` and fill out the values:
 
-```.env
-# Bot
-TOKEN=REPLACE_HERE
-PREFIX=#
-NP_REALTIME=false
-LEAVE_TIMEOUT=120000
-EMBED_COLOR=#000001
-
-# Dev
-OWNER_ID=REPLACE_HERE
-
-# Nodes
-NODE_HOST=localhost
-NODE_PORT=5555
-NODE_PASSWORD=123456
+```js
+module.exports = {
+    TOKEN: [ /// You can add token bot (unlimited) if you want!
+      "TOKEN_01", 
+      "TOKEN_02", 
+      "TOKEN_03",
+      "TOKEN_04",
+      "TOKEN_05",
+      "TOKEN_06",
+      "TOKEN_07",
+      "TOKEN_08",
+      "TOKEN_09",
+      "TOKEN_10"
+    ],
+    PREFIX: [ /// Prefix bot need same count with token
+      "01.", 
+      "02.", 
+      "03.",
+      "04.",
+      "05.",
+      "06.",
+      "07.",
+      "08.",
+      "09.",
+      "10."
+    ],
+    EMBED_COLOR: "#000001", //<= default is "#000001"
+    OWNER_ID: "515490955801919488", //your owner discord id example: "515490955801919488"
+    DEV_ID: [], // if you want to use bot only as you, you can put your id here example: ["123456789", "123456789"]
+    LEAVE_EMPTY: 120000, // 2 minutes
+    DEFAULT_SEARCH: "ytsearch", // default search engine & "ytmsearch" / "ytsearch" / "scsearch" / "spsearch"
+    NODES: [ /// Requirement 1 Nodes for this project!
+      {
+        identifier: "NanoSpace",
+        host: "localhost",
+        port: 5555,
+        password: "123456",
+        retryAmount: 10,
+        retryDelay: 7500,
+        secure: false
+      }
+    ],
+}
 ```
 	
 After installation or finishes all you can use `node .` to start the bot. or `Run Start.bat`
@@ -105,6 +128,12 @@ After installation or finishes all you can use `node .` to start the bot. or `Ru
 - 247 (#247)
 - Previous (#previous)
 - Autoplay (#autoplay)
+- Move (#move [song] [position])
+- Remove (#remove [song])
+- PlaySkip (#playskip [song/url])
+- SearchSkip (#searchskip [songname])
+- PlayTop (#playtop [song/url])
+- SearchTop (#searchtop [songname])
 
 ⏺ **Filter Commands!**
 - Bass (#bass)
@@ -135,25 +164,15 @@ After installation or finishes all you can use `node .` to start the bot. or `Ru
 - Television (#Television)
 - Jazz (#jazz)
 	
-📑 **Utilities Commands!**
-- Restart (#restart, #stopbot)
-- Invite (#invite)
+📑 **Misc Commands!**
 - Help (#help, #halp [command])
+- Vps (#vps)
+- LavaLink (#lavalink)
 
-</p>
-</details>
-
-
-<details><summary>🖼 Picture [CLICK ME]</summary>
-<p>
-
-## 🖼 Picture & ScreenShots
-
-![see](https://i.imgur.com/xUurYDJ.png)
-![see](https://i.imgur.com/hxSCmeP.png)
-![see](https://i.imgur.com/P3GNCbQ.png)
-![see](https://i.imgur.com/9Plhzar.png)
-![see](https://i.imgur.com/k2Sp8zo.png)
+🤖 **Dev Commands!**
+- Whitelist (#whitelist [add/remove] <guildId>)
+- LeaveGuilds (#leaveguild)
+- GuildLists (#guildlist)
 
 </p>
 </details>
