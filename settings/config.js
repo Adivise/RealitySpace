@@ -33,7 +33,7 @@ module.exports = {
         identifier: "NanoSpace",
         host: "localhost",
         port: 5555,
-        password: "nanospace",
+        password: "123456",
         retryAmount: 10,
         retryDelay: 7500,
         secure: false
