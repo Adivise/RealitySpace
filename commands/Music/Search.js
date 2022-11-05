@@ -14,8 +14,20 @@ module.exports = {
 
         const { channel } = message.member.voice;
 		if (!channel) return msg.edit(`You are not in a voice channel!`);
+        const BotVC = message.guild.me.voice.channel;
+        if (BotVC && BotVC !== channel) return msg.edit(`I'm not in the same voice channel as you!`);
+        
 		if (!channel.permissionsFor(message.guild.members.me).has(PermissionsBitField.Flags.Connect)) return msg.edit(`I do not have permission to join your voice channel!`);
 		if (!channel.permissionsFor(message.guild.members.me).has(PermissionsBitField.Flags.Speak)) return msg.edit(`I do not have permission to speak in your voice channel!`);
+
+        // list channel who in voice channel
+        const list = await message.member.guild.channels.fetch(channel.id);
+        const members = list.members.map(m => m);
+        const bot = members.filter(m => m.user.bot === true).map(m => m.user.id);
+        // Can't have 2 bot in 1 voice channel
+        if (!bot.includes(client.user.id)) {
+            if (bot.length === 1) return msg.edit(`You can't use 2 bot in 1 voice channel!`);
+        }
 
         if (!args[0]) return msg.edit(`Please provide a song name to search music.`);
 

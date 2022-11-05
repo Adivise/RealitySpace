@@ -14,6 +14,8 @@ module.exports = async (client, message) => {
       message.channel.send({ embeds: [embed] })
     };
 
+    await client.createControl(message);
+
     const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const prefixRegex = new RegExp(`^(<@!?${client.user.id}>|${escapeRegex(prefix)})\\s*`);
     if (!prefixRegex.test(message.content)) return;

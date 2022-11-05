@@ -1,5 +1,8 @@
 const { EmbedBuilder } = require("discord.js");
 const formatduration = require('../../structures/FormatDuration.js');
+const { Database } = require("st.db");
+
+const db = new Database(`./settings/models/control.json`, { databaseInObject: true });
     
 module.exports = async (client, player, track, payload) => {
       const embed = new EmbedBuilder()
@@ -22,5 +25,8 @@ module.exports = async (client, player, track, payload) => {
           embed.setThumbnail(client.user.displayAvatarURL({ dynamic: true, size: 2048 }));
         }
 
-    client.channels.cache.get(player.textChannel).send({ embeds: [embed] });
+    const database = await db.get(player.guild);
+    if (database === true) {
+      client.channels.cache.get(player.textChannel).send({ embeds: [embed] });
+    }
 }
