@@ -14,7 +14,7 @@ module.exports = {
 
         const { channel } = message.member.voice;
 		if (!channel) return msg.edit(`You are not in a voice channel!`);
-        const BotVC = message.guild.me.voice.channel;
+        const BotVC = message.guild.members.me.voice.channel;
         if (BotVC && BotVC !== channel) return msg.edit(`I'm not in the same voice channel as you!`);
         
 		if (!channel.permissionsFor(message.guild.members.me).has(PermissionsBitField.Flags.Connect)) return msg.edit(`I do not have permission to join your voice channel!`);
