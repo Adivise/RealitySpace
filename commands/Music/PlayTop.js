@@ -13,7 +13,7 @@ module.exports = {
     run: async (client, message, args) => {
         const msg = await message.channel.send(`Loading please wait....`);
         
-		const player = client.manager.get(message.guild.id);
+		const player = client.manager.players.get(message.guild.id);
 		if (!player) return msg.edit(`No playing in this guild!`);
         const { channel } = message.member.voice;
         if (!channel || message.member.voice.channel !== message.guild.members.me.voice.channel) return msg.edit(`I'm not in the same voice channel as you!`);
@@ -21,67 +21,45 @@ module.exports = {
         if (!args[0]) return msg.edit(`Please provide a song name/link to play music.`);
         const search = args.join(" ");
 
-        if (player.state != "CONNECTED") await player.connect();
-        const res = await client.manager.search(search, message.author, player.node);
+        const res = await client.manager.search(search, { requester: message.author });
+        if (!res || !res.tracks.length) return msg.edit(`No results found for ${search}`);
 
-        if(res.loadType != "NO_MATCHES") {
-            if(res.loadType == "TRACK_LOADED") {
-                await player.queue.add(res.tracks[0]);
+        if (res.type === "PLAYLIST") {
+            const queues = player.queue.size;
+            for (let track of res.tracks) player.queue.add(track);
+            
+            Playlist(player, queues);
 
-                playtop(player);
+            const embed = new EmbedBuilder()
+                .setColor(client.color)
+                .setDescription(`**Shifted • [${res.playlistName}](${search})** \`${convertTime(player.queue.durationLength, true)}\` (${res.tracks.length} tracks) • ${res.tracks[0].requester}`)
 
-                const embed = new EmbedBuilder() //**Queued • [${res.tracks[0].title}](${res.tracks[0].uri})** \`${convertTime(res.tracks[0].duration, true)}\` • ${res.tracks[0].requester}
-                    .setDescription(`*Shifted • [${res.tracks[0].title}](${res.tracks[0].uri})** \`${convertTime(res.tracks[0].duration)}\` • ${res.tracks[0].requester}`)
-                    .setColor(client.color)
-
-                msg.edit({ content: " ", embeds: [embed] });
-                if(!player.playing) player.play();
-            } else if(res.loadType == "PLAYLIST_LOADED") {
-                const queues = player.queue.length;
-                await player.queue.add(res.tracks);
-
-                playtoppl(player, queues);
-
-                const embed = new EmbedBuilder() //**Queued • [${res.playlist.name}](${search})** \`${convertTime(res.playlist.duration)}\` (${res.tracks.length} tracks) • ${res.tracks[0].requester}
-                    .setDescription(`**Shifted • [${res.playlist.name}](${search})** \`${convertTime(res.playlist.duration)}\` (${res.tracks.length} tracks) • ${res.tracks[0].requester}`)
-                    .setColor(client.color)
-
-                msg.edit({ content: " ", embeds: [embed] });
-                if(!player.playing) player.play();
-            } else if(res.loadType == "SEARCH_RESULT") {
-                await player.queue.add(res.tracks[0]);
-
-                playtop(player);
-
-                const embed = new EmbedBuilder()
-                    .setDescription(`**Shifted • [${res.tracks[0].title}](${res.tracks[0].uri})** \`${convertTime(res.tracks[0].duration)}\` • ${res.tracks[0].requester}`)
-                    .setColor(client.color)
-
-                msg.edit({ content: " ", embeds: [embed] });
-                if(!player.playing) player.play();
-            } else if(res.loadType == "LOAD_FAILED") {
-                msg.edit(`Error loading track failed`);
-                player.destroy();
-            }
+            return msg.edit({ content: " ", embeds: [embed] })
         } else {
-            msg.edit(`No results found for ${search}`);
-            player.destroy();
+            player.queue.add(res.tracks[0]);
+
+            Normal(player);
+
+            const embed = new EmbedBuilder()
+                .setColor(client.color)
+                .setDescription(`**Shifted • [${res.tracks[0].title}](${res.tracks[0].uri})** \`${convertTime(res.tracks[0].length, true)}\` • ${res.tracks[0].requester}`)
+
+            return msg.edit({ content: " ", embeds: [embed] })
         }
     }
 }
 
-function playtop(player) {
-    const song = player.queue[player.queue.length - 1];
-
-    player.queue.splice(player.queue.length - 1, 1);
-    player.queue.splice(1 - 1, 0, song);
+function Normal(player) {
+    const song = player.queue[player.queue.size - 1];
+    player.queue.splice(player.queue.size - 1, 1);
+    player.queue.splice(0, 0, song);
 }
 
-function playtoppl(player, queues) {
+function Playlist(player, queues) {
     let num = 0;
-    for (let i = queues + 1; i < player.queue.length + 1; i++) {
-        const song = player.queue[i - 1];
-        player.queue.splice(i - 1, 1);
+    for (let i = queues; i < player.queue.size; i++) {
+        const song = player.queue[i];
+        player.queue.splice(i, 1);
         player.queue.splice(num++, 0, song);
     }
 }

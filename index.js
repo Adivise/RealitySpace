@@ -1,7 +1,12 @@
 const { Client, Collection, GatewayIntentBits } = require("discord.js");
-const { Manager } = require("erela.js");
+const { Connectors } = require("shoukaku");
+const { Kazagumo, Plugins } = require("kazagumo");
 
 const { TOKEN, PREFIX } = require("./settings/config.js");
+
+process.on('unhandledRejection', console.error);
+process.on('uncaughtException', console.error);
+process.on('uncaughtExceptionMonitor', console.error);
 
 for (let i = 0; i < TOKEN.length ; i++) {
       const client = new Client({
@@ -27,24 +32,17 @@ for (let i = 0; i < TOKEN.length ; i++) {
       process.on('unhandledRejection', error => console.log(error));
       process.on('uncaughtException', error => console.log(error));
 
-      client.manager = new Manager({
-        nodes: client.config.NODES,
-        autoPlay: true,
-        volumeDecrementer: 0.75,
-        forceSearchLinkQueries: true,
+      client.manager = new Kazagumo({
         defaultSearchPlatform: client.config.DEFAULT_SEARCH,
-        allowedLinksRegexes: Object.values(Manager.regex),
-        shards: client.ws.totalShards || 1,
-        clientName: client.user?.username,
-        clientId: client.user?.id || client.id,
-        send(id, payload) {
-          const guild = client.guilds.cache.get(id);
+        plugins: [new Plugins.PlayerMoved(client)],
+        send(guildId, payload) {
+          const guild = client.guilds.cache.get(guildId);
           if (guild) guild.shard.send(payload);
         },
-      });
+      }, new Connectors.DiscordJS(client), client.config.NODES);
 
       ["aliases", "commands"].forEach(x => client[x] = new Collection());
-      ["loadCommand", "loadEvent", "loadPlayer", "loadDatabase"].forEach(x => require(`./handlers/${x}`)(client));
+      ["loadCommand", "loadEvent", "loadPlayers", "loadDatabase"].forEach(x => require(`./handlers/${x}`)(client));
 
       client.login(client.token);
 }

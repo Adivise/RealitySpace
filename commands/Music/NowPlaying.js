@@ -13,15 +13,17 @@ module.exports = {
     run: async (client, message, args) => {
         const msg = await message.channel.send(`Loading please wait....`);
 
-        const player = client.manager.get(message.guild.id);
+        const player = client.manager.players.get(message.guild.id);
         if (!player) return msg.edit(`No playing in this guild!`);
 
         const song = player.queue.current;
         const CurrentDuration = formatDuration(player.position);
-        const TotalDuration = formatDuration(song.duration);
+        const TotalDuration = formatDuration(song.length);
+        const QueueDuration = formatDuration(player.queue.durationLength + song.length);
+
         const Thumbnail = `https://img.youtube.com/vi/${song.identifier}/maxresdefault.jpg`;
 
-        const Part = Math.floor(player.position / song.duration * 30);
+        const Part = Math.floor(player.position / song.length * 30);
         const Emoji = player.playing ? "🔴 |" : "⏸ |";
 
         const embeded = new EmbedBuilder()
@@ -33,7 +35,7 @@ module.exports = {
             .addFields({ name: `Requester:`, value: `${song.requester}`, inline: true })
             .addFields({ name: `Volume:`, value: `${player.volume}%`, inline: true })
             .addFields({ name: `Queue Length:`, value: `${player.queue.length}`, inline: true })
-            .addFields({ name: `Total Duration:`, value: `${formatDuration(player.queue.duration)}`, inline: true })
+            .addFields({ name: `Total Duration:`, value: `${QueueDuration}`, inline: true })
             .addFields({ name: `Download:`, value: `**[Click Here](https://www.mp3fromlink.com/watch?v=${song.identifier})**`, inline: true })
             .addFields({ name: `Current Duration: \`[${CurrentDuration} / ${TotalDuration}]\``, value: `\`\`\`${Emoji} ${'─'.repeat(Part) + '🎶' + '─'.repeat(30 - Part)}\`\`\``, inline: false })
             .setTimestamp();

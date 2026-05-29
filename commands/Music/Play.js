@@ -1,7 +1,8 @@
 const { convertTime } = require("../../structures/ConvertTime.js")
 const { EmbedBuilder, PermissionsBitField } = require("discord.js");
+const { Database } = require("st.db");
 
-module.exports = { 
+module.exports = {
     config: {
         name: "play",
         description: "Play a song!",
@@ -12,73 +13,64 @@ module.exports = {
     },
     run: async (client, message, args) => {
         const msg = await message.channel.send(`Loading please wait....`);
-        
+
         const { channel } = message.member.voice;
-		if (!channel) return msg.edit(`You are not in a voice channel`);
+        if (!channel) return msg.edit(`You are not in a voice channel`);
         const BotVC = message.guild.members.me.voice.channel;
         if (BotVC && BotVC !== channel) return msg.edit(`I'm not in the same voice channel as you!`);
 
-		if (!channel.permissionsFor(message.guild.members.me).has(PermissionsBitField.Flags.Connect)) return msg.edit(`I don't have permission to join your voice channel!`);
-		if (!channel.permissionsFor(message.guild.members.me).has(PermissionsBitField.Flags.Speak)) return msg.edit(`I don't have permission to speak in your voice channel!`);
+        if (!channel.permissionsFor(message.guild.members.me).has(PermissionsBitField.Flags.Connect)) return msg.edit(`I don't have permission to join your voice channel!`);
+        if (!channel.permissionsFor(message.guild.members.me).has(PermissionsBitField.Flags.Speak)) return msg.edit(`I don't have permission to speak in your voice channel!`);
 
         // list channel who in voice channel
         const list = await message.member.guild.channels.fetch(channel.id);
         const members = list.members.map(m => m);
         const bot = members.filter(m => m.user.bot === true).map(m => m.user.id);
         // Can't have 2 bot in 1 voice channel
-        if (!bot.includes(client.user.id)) {
-            if (bot.length === 1) return msg.edit(`You can't use 2 bot in 1 voice channel!`);
+
+        const controlDB = new Database('./settings/models/control.json', { databaseInObject: true });
+        const botBypass = await controlDB.get(`${message.guild.id}_botbypass`);
+        const isOwner = message.author.id === client.owner;
+        if (!botBypass && !isOwner) {
+            if (!bot.includes(client.user.id) && bot.length >= 1) {
+                return msg.edit(`You can't use 2 bot in 1 voice channel!`);
+            }
         }
 
         if (!args[0]) return msg.edit(`Please provide a song name/link to play music.`);
         const search = args.join(" ");
 
-        const player = await client.manager.create({
-            region: message.member.voice.channel?.rtcRegion || undefined,
-            guild: message.guild.id,
-            voiceChannel: message.member.voice.channel.id,
-            textChannel: message.channel.id,
-            selfDeafen: true,
+        const player = await client.manager.createPlayer({
+            guildId: message.guild.id,
+            voiceId: message.member.voice.channel.id,
+            textId: message.channel.id,
+            volume: 100,
+            deaf: true,
         });
 
-        if (player.state != "CONNECTED") await player.connect();
-        const res = await client.manager.search(search, message.author, player.node);
+        const res = await client.manager.search(search, { requester: message.author });
+        if (!res || !res.tracks.length) return msg.edit(`No results found for ${search}`);
 
-        if(res.loadType != "NO_MATCHES") {
-            if(res.loadType == "TRACK_LOADED") {
-                await player.queue.add(res.tracks[0]);
+        if (res.type === "PLAYLIST") {
+            for (let track of res.tracks) player.queue.add(track);
 
-                const embed = new EmbedBuilder() //**Queued • [${res.tracks[0].title}](${res.tracks[0].uri})** \`${convertTime(res.tracks[0].duration, true)}\` • ${res.tracks[0].requester}
-                    .setDescription(`**Queued • [${res.tracks[0].title}](${res.tracks[0].uri})** \`${convertTime(res.tracks[0].duration)}\` • ${res.tracks[0].requester}`)
-                    .setColor(client.color)
+            if (!player.playing && !player.paused) player.play();
 
-                msg.edit({ content: " ", embeds: [embed] });
-                if(!player.playing) player.play();
-            } else if(res.loadType == "PLAYLIST_LOADED") {
-                await player.queue.add(res.tracks)
+            const embed = new EmbedBuilder()
+                .setColor(client.color)
+                .setDescription(`**Queued • [${res.playlistName}](${search})** \`${convertTime(res.tracks[0].length + player.queue.durationLength, true)}\` (${res.tracks.length} tracks) • ${res.tracks[0].requester}`)
 
-                const embed = new EmbedBuilder() //**Queued • [${res.playlist.name}](${search})** \`${convertTime(res.playlist.duration)}\` (${res.tracks.length} tracks) • ${res.tracks[0].requester}
-                    .setDescription(`**Queued • [${res.playlist.name}](${search})** \`${convertTime(res.playlist.duration)}\` (${res.tracks.length} tracks) • ${res.tracks[0].requester}`)
-                    .setColor(client.color)
-
-                msg.edit({ content: " ", embeds: [embed] });
-                if(!player.playing) player.play();
-            } else if(res.loadType == "SEARCH_RESULT") {
-                await player.queue.add(res.tracks[0]);
-
-                const embed = new EmbedBuilder()
-                    .setDescription(`**Queued • [${res.tracks[0].title}](${res.tracks[0].uri})** \`${convertTime(res.tracks[0].duration)}\` • ${res.tracks[0].requester}`)
-                    .setColor(client.color)
-
-                msg.edit({ content: " ", embeds: [embed] });
-                if(!player.playing) player.play();
-            } else if(res.loadType == "LOAD_FAILED") {
-                msg.edit(`Error loading track failed`);
-                player.destroy();
-            }
+            return msg.edit({ content: " ", embeds: [embed] })
         } else {
-            msg.edit(`No results found for ${search}`);
-            player.destroy();
+            player.queue.add(res.tracks[0]);
+
+            if (!player.playing && !player.paused) player.play();
+
+            const embed = new EmbedBuilder()
+                .setColor(client.color)
+                .setDescription(`**Queued • [${res.tracks[0].title}](${res.tracks[0].uri})** \`${convertTime(res.tracks[0].length, true)}\` • ${res.tracks[0].requester}`)
+
+            return msg.edit({ content: " ", embeds: [embed] })
         }
     }
 }

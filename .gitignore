@@ -102,5 +102,6 @@ dist
 
 # TernJS port file
 .tern-port
-plugins/Nico/index.js
-plugins/Nico/plugin.js
+eslint.log
+package-lock.json
+settings/config.js

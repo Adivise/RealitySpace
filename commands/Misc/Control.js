@@ -16,7 +16,6 @@ module.exports = {
         const msg = await message.channel.send(`Loading please wait....`);
 
         const database = await db.get(message.guild.id);
-        // check == true == false
         if (database === true) {
             db.set(message.guild.id, false);
 

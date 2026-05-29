@@ -11,13 +11,13 @@ module.exports = {
         category: "Music",
     },
     run: async (client, message, args) => {
-		const player = client.manager.get(message.guild.id);
+		const player = client.manager.players.get(message.guild.id);
 		if (!player) return message.channel.send(`No playing in this guild!`);
         const { channel } = message.member.voice;
         if (!channel || message.member.voice.channel !== message.guild.members.me.voice.channel) return message.channel.send(`I'm not in the same voice channel as you!`);
 
 		const song = player.queue.current;
-		const qduration = `${formatDuration(player.queue.duration)}`;
+		const qduration = formatDuration(player.queue.durationLength + song.length);
         const thumbnail = `https://img.youtube.com/vi/${song.identifier}/hqdefault.jpg`;
 
 		let pagesNum = Math.ceil(player.queue.length / 10);
@@ -27,7 +27,7 @@ module.exports = {
 		for (let i = 0; i < player.queue.length; i++) {
 			const song = player.queue[i];
 			songStrings.push(
-				`**${i + 1}.** [${song.title}](${song.uri}) \`[${formatDuration(song.duration)}]\` • ${song.requester}
+				`**${i + 1}.** [${song.title}](${song.uri}) \`[${formatDuration(song.length)}]\` • ${song.requester}
 				`);
 		}
 
@@ -38,8 +38,8 @@ module.exports = {
 			const embed = new EmbedBuilder()
                 .setAuthor({ name: `Queue - ${message.guild.name}`, iconURL: message.guild.iconURL({ dynamic: true }) })
                 .setThumbnail(thumbnail)
-				.setColor(client.color) //**Currently Playing:**\n**[${song.title}](${song.uri})** \`[${formatDuration(song.duration)}]\` • ${song.requester}\n\n**Rest of queue**:${str == '' ? '  Nothing' : '\n' + str}
-				.setDescription(`*Currently Playing*\n*[${song.title}](${song.uri})* \`[${formatDuration(song.duration)}]\` • ${song.requester}\n\n*Rest of queue*:${str == '' ? '  Nothing' : '\n' + str}`) //Page • ${i + 1}/${pagesNum} | ${player.queue.length} • Song | ${qduration} • Total duration
+				.setColor(client.color) //**Currently Playing:**\n**[${song.title}](${song.uri})** \`[${formatDuration(song.length)}]\` • ${song.requester}\n\n**Rest of queue**:${str == '' ? '  Nothing' : '\n' + str}
+				.setDescription(`*Currently Playing*\n*[${song.title}](${song.uri})* \`[${formatDuration(song.length)}]\` • ${song.requester}\n\n*Rest of queue*:${str == '' ? '  Nothing' : '\n' + str}`) //Page • ${i + 1}/${pagesNum} | ${player.queue.length} • Song | ${qduration} • Total duration
 				.setFooter({ text: `Page • ${i + 1}/${pagesNum} | ${player.queue.length} • Song/s | ${qduration} • Total Duration` });
 
 			pages.push(embed);

@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 
-module.exports = { 
+module.exports = {
     config: {
         name: "doubletime",
         description: "Turning on doubletime filter",
@@ -10,20 +10,18 @@ module.exports = {
     run: async (client, message, args) => {
         const msg = await message.channel.send(`Loading please wait....`);
 
-            const player = client.manager.get(message.guild.id);
-            if(!player) return msg.edit(`No playing in this guild!`);
-            const { channel } = message.member.voice;
-            if (!channel || message.member.voice.channel !== message.guild.members.me.voice.channel) return msg.edit(`I'm not in the same voice channel as you!`);
-    
-            const data = {
-                op: 'filters',
-                guildId: message.guild.id,
-                timescale: {
-                    speed: 1.165,
-                },
-            }
-    
-            await player.node.send(data);
+        const player = client.manager.players.get(message.guild.id);
+        if (!player) return msg.edit(`No playing in this guild!`);
+        const { channel } = message.member.voice;
+        if (!channel || message.member.voice.channel !== message.guild.members.me.voice.channel) return msg.edit(`I'm not in the same voice channel as you!`);
+
+        const data = {
+            timescale: {
+                speed: 1.165,
+            },
+        }
+
+        await player.shoukaku.setFilters(data);
 
         const embed = new EmbedBuilder()
             .setDescription(`\`💠\` | *Turned on:* \`DoubleTime\``)

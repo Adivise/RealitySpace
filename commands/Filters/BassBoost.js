@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 
-module.exports = { 
+module.exports = {
     config: {
         name: "bassboost",
         description: "Turning on bassboost filter",
@@ -10,15 +10,13 @@ module.exports = {
         aliases: ["bb"]
     },
     run: async (client, message, args) => {
-            const player = client.manager.get(message.guild.id);
-            if(!player) return message.channel.send(`No playing in this guild!`);
-            const { channel } = message.member.voice;
-            if (!channel || message.member.voice.channel !== message.guild.members.me.voice.channel) return message.channel.send(`I'm not in the same voice channel as you!`);
-            
-        if(!args[0]) {
+        const player = client.manager.players.get(message.guild.id);
+        if (!player) return message.channel.send(`No playing in this guild!`);
+        const { channel } = message.member.voice;
+        if (!channel || message.member.voice.channel !== message.guild.members.me.voice.channel) return message.channel.send(`I'm not in the same voice channel as you!`);
+
+        if (!args[0]) {
             const data = {
-                op: 'filters',
-                guildId: message.guild.id,
                 equalizer: [
                     { band: 0, gain: 0.10 },
                     { band: 1, gain: 0.10 },
@@ -37,22 +35,20 @@ module.exports = {
                 ]
             }
 
-            await player.node.send(data);
+            await player.shoukaku.setFilters(data);
 
             const msg1 = await message.channel.send(`Loading please wait....`);
             const embed = new EmbedBuilder()
                 .setDescription("`💠` | *Turned on:* `Bassboost`")
                 .setColor(client.color);
-                
+
             await delay(5000);
             return msg1.edit({ content: " ", embeds: [embed] });
-        } 
+        }
 
-    if(isNaN(args[0])) return message.channel.send(`Please enter a number!`);
-    if(args[0] > 10 || args[0] < -10) return message.channel.send(`Please enter a number between -10 - 10!`);
+        if (isNaN(args[0])) return message.channel.send(`Please enter a number!`);
+        if (args[0] > 10 || args[0] < -10) return message.channel.send(`Please enter a number between -10 - 10!`);
         const data = {
-            op: 'filters',
-            guildId: message.guild.id,
             equalizer: [
                 { band: 0, gain: args[0] / 10 },
                 { band: 1, gain: args[0] / 10 },
@@ -70,12 +66,12 @@ module.exports = {
                 { band: 13, gain: 0 },
             ]
         }
-        await player.node.send(data);
+        await player.shoukaku.setFilters(data);
         const msg2 = await message.channel.send(`Loading please wait....`);
         const embed = new EmbedBuilder()
             .setDescription(`\`💠\` | *Turned on:* \`Bassboost\` *Gain:* \`${args[0]}\``)
             .setColor(client.color);
-        
+
         await delay(5000);
         return msg2.edit({ content: " ", embeds: [embed] });
     }

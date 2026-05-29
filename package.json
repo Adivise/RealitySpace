@@ -1,21 +1,18 @@
 {
   "name": "realityspace",
-  "version": "1.0.0b",
+  "version": "2.0.0",
   "description": "✈ Join Discord: https://discord.gg/4pk97A2 👌",
   "main": "index.js",
   "dependencies": {
-    "common-tags": "^1.8.0",
-    "discord.js": "^14.7.1",
-    "erela.js": "github:Adivise/better-erela.js",
+    "discord.js": "^14.26.4",
+    "kazagumo": "^3.4.3",
     "lyrics-finder": "^21.7.0",
-    "moment": "^2.29.4",
-    "moment-duration-format": "^2.3.2",
-    "os": "^0.1.2",
-    "pretty-bytes": "^5.6.0",
+    "shoukaku": "^4.1.1",
     "st.db": "^5.1.4"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "lint": "eslint . -f codeframe > eslint.log"
   },
   "author": "Adivise",
   "license": "MIT",
@@ -28,6 +25,10 @@
   },
   "homepage": "https://github.com/Adivise/RealitySpace#readme",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.4.0",
+    "eslint-formatter-codeframe": "^7.32.2",
+    "globals": "^17.6.0",
     "node": "^17.0.1"
   }
 }

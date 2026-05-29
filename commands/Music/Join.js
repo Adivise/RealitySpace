@@ -1,4 +1,5 @@
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, PermissionsBitField } = require('discord.js');
+const { Database } = require("st.db");
 
 module.exports = { 
     config: {
@@ -21,18 +22,22 @@ module.exports = {
         const members = list.members.map(m => m);
         const bot = members.filter(m => m.user.bot === true).map(m => m.user.id);
         // Can't have 2 bot in 1 voice channel
-        if (!bot.includes(client.user.id)) {
-            if (bot.length === 1) return msg.edit(`You can't use 2 bot in 1 voice channel!`);
+        const controlDB = new Database('./settings/models/control.json', { databaseInObject: true });
+        const botBypass = await controlDB.get(`${message.guild.id}_botbypass`);
+        const isOwner = message.author.id === client.owner;
+        if (!botBypass && !isOwner) {
+            if (!bot.includes(client.user.id) && bot.length >= 1) {
+                return msg.edit(`You can't use 2 bot in 1 voice channel!`);
+            }
         }
 
-        const player = client.manager.create({
-            guild: message.guild.id,
-            voiceChannel: message.member.voice.channel.id,
-            textChannel: message.channel.id,
-            selfDeafen: true,
+        client.manager.createPlayer({
+            guildId: message.guild.id,
+            textId: message.channel.id,
+            voiceId: channel.id,
+            volume: 100,
+            deaf: true
         });
-
-        await player.connect();
 
         const embed = new EmbedBuilder()
             .setDescription(`\`🔊\` | *Joined:* \`${channel.name}\``)

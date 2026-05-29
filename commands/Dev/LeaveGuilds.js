@@ -11,8 +11,8 @@ module.exports = {
     ownerOnly: true,
     run: async (client, message, args) => {
         const db = new Database(`./settings/models/access.json`, { databaseInObject: true });
-        
-        const database = db.get(`whitelist`);
+
+        const database = db.get(`whitelist`) || [];
         const guild = message.client.guilds.cache;
         // check if bot not in whitelist = leave
         const LeaveStr = [];

@@ -1,60 +1,59 @@
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
-    config: {
-        name: "loop",
-        aliases: ["repeat"],
-        description: "Loop song in queue!",
-        accessableby: "Member",
-        category: "Music",
-        usage: "<current, all>"
-    },
-    run: async (client, message, args) => {
+	config: {
+		name: "loop",
+		aliases: ["repeat"],
+		description: "Loop song in queue!",
+		accessableby: "Member",
+		category: "Music",
+		usage: "<current, all>"
+	},
+	run: async (client, message, args) => {
 		const msg = await message.channel.send(`Loading please wait....`);
 
-		const player = client.manager.get(message.guild.id);
+		const player = client.manager.players.get(message.guild.id);
 		if (!player) return msg.edit(`No playing in this guild!`);
-        const { channel } = message.member.voice;
-        if (!channel || message.member.voice.channel !== message.guild.members.me.voice.channel) return msg.edit(`I'm not in the same voice channel as you!`);
+		const { channel } = message.member.voice;
+		if (!channel || message.member.voice.channel !== message.guild.members.me.voice.channel) return msg.edit(`I'm not in the same voice channel as you!`);
 
 		if (!args[0] || args[0].toLowerCase() == 'current') {
-			if (player.trackRepeat === false) {
-				player.setTrackRepeat(true);
+			if (player.loop === "none") {
+				player.setLoop("track");
 
 				const looped = new EmbedBuilder()
 					.setDescription(`\`🔁\` | *Song has been:* \`Looped\``)
 					.setColor(client.color);
 
-					msg.edit({ content: " ", embeds: [looped] });
+				msg.edit({ content: " ", embeds: [looped] });
 			}
 			else {
-				player.setTrackRepeat(false);
+				player.setLoop("none");
 
 				const unlooped = new EmbedBuilder()
 					.setDescription(`\`🔁\` | *Song has been:* \`Unlooped\``)
 					.setColor(client.color);
 
-					msg.edit({ content: " ", embeds: [unlooped] });
+				msg.edit({ content: " ", embeds: [unlooped] });
 			}
-		}
-		else if (args[0] == 'all') {
-			if (player.queueRepeat === true) {
-				player.setQueueRepeat(false);
+		} else if (args[0].toLowerCase() == 'all' || args[0].toLowerCase() == 'queue') {
+			if (player.loop === "queue") {
+				player.setLoop("none");
 
-				const unloopall = new EmbedBuilder() //// this is unloop all in queue!
+				const unloopall = new EmbedBuilder()
 					.setDescription(`\`🔁\` | *Loop all has been:* \`Disabled\``)
 					.setColor(client.color);
 
-					msg.edit({ content: " ", embeds: [unloopall] });
+				msg.edit({ content: " ", embeds: [unloopall] });
 			}
 			else {
-				player.setQueueRepeat(true);
+				player.setLoop("queue");
 
-				const loopall = new EmbedBuilder() // this is loop all in queue!
+				const loopall = new EmbedBuilder()
 					.setDescription(`\`🔁\` | *Loop all has been:* \`Enabled\``)
 					.setColor(client.color);
 
-					msg.edit({ content: " ", embeds: [loopall] });
+				msg.edit({ content: " ", embeds: [loopall] });
 			}
 		}
 	}

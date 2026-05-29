@@ -6,6 +6,7 @@ const fastForwardNum = 10;
 module.exports = { 
     config: {
         name: "forward",
+        aliases: ["fwd"],
         description: "Forward timestamp in the song!",
         accessableby: "Member",
         category: "Music",
@@ -15,7 +16,7 @@ module.exports = {
     run: async (client, message, args) => {
         const msg = await message.channel.send(`Loading please wait....`);
            
-		const player = client.manager.get(message.guild.id);
+		const player = client.manager.players.get(message.guild.id);
 		if (!player) return msg.edit(`No playing in this guild!`);
         const { channel } = message.member.voice;
         if (!channel || message.member.voice.channel !== message.guild.members.me.voice.channel) return msg.edit(`I'm not in the same voice channel as you!`);
@@ -24,7 +25,7 @@ module.exports = {
         const CurrentDuration = formatDuration(player.position);
 
 		if (args[0] && !isNaN(args[0])) {
-			if((player.position + args[0] * 1000) < song.duration) {
+			if((player.position + args[0] * 1000) < song.length) {
 
                 player.seek(player.position + args[0] * 1000);
                 
@@ -43,7 +44,7 @@ module.exports = {
         }
 
 		if (!args[0]) {
-			if((player.position + fastForwardNum * 1000) < song.duration) {
+			if((player.position + fastForwardNum * 1000) < song.length) {
                 player.seek(player.position + fastForwardNum * 1000);
                 
                 const forward2 = new EmbedBuilder()
